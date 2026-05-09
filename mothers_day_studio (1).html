@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🌸 Mother's Day Card Studio · Opens directly in any browser</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Dancing+Script:wght@500;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Outfit', sans-serif; background: #fefaf5; }
+    .theme-preview { border: 2px solid transparent; transition: 0.2s; cursor: pointer; border-radius: 1rem; }
+    .theme-preview.active { border-color: #d37c5e; box-shadow: 0 0 0 2px rgba(211,124,94,0.3); background: #fffaf5; }
+    .memory-img-preview { width: 70px; height: 70px; object-fit: cover; border-radius: 14px; background: #f3f0e9; border: 1px solid #ffe1c4; }
+    .delete-item { opacity: 0.6; transition: 0.2s; }
+    .delete-item:hover { opacity: 1; background: #fee2e2; }
+    .effect-btn.active-effect { background: #fde68a !important; border-color: #d37c5e !important; color: #7b341e !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    #previewModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+    #previewModal.open { display: flex; }
+    .preview-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 94vw;
+      max-width: 1400px;
+      height: 90vh;
+      background: transparent;
+      border-radius: 28px;
+    }
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 0 8px;
+    }
+    .preview-header span {
+      color: white;
+      font-weight: 500;
+      font-size: 1rem;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 16px;
+      border-radius: 40px;
+      backdrop-filter: blur(4px);
+    }
+    .preview-buttons { display: flex; gap: 12px; }
+    .preview-buttons button {
+      background: white;
+      border: none;
+      padding: 6px 18px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #3c2f2c;
+    }
+    .preview-buttons button:hover { background: #fde68a; transform: translateY(-2px); }
+    #previewFrame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    .size-badge { font-size: 11px; padding: 2px 10px; border-radius: 999px; font-weight: 500; }
+    .size-ok { background: #d1fae5; color: #065f46; }
+    .size-warn { background: #fef3c7; color: #92400e; }
+    .size-danger { background: #fee2e2; color: #991b1b; }
+    .info-note { background: #eef2ff; border-left: 4px solid #6366f1; padding: 12px; border-radius: 12px; margin-top: 16px; font-size: 13px; }
+  </style>
+</head>
+<body class="text-slate-700">
+<div class="max-w-7xl mx-auto px-5 py-8">
+  <div class="text-center mb-8">
+    <span class="text-4xl">🌸</span>
+    <h1 class="text-3xl md:text-4xl font-light tracking-wide text-slate-800 mt-2">Mother's Day Card Studio</h1>
+    <p class="text-slate-500 max-w-xl mx-auto mt-2">Customize letter, upload photos, add coupons & messages — then open directly in your browser (works on iPhone, Android, PC).</p>
+  </div>
+
+  <!-- Theme Picker -->
+  <div class="bg-white/70 rounded-2xl p-6 shadow-sm border border-amber-100 mb-8">
+    <h2 class="text-xl font-medium flex items-center gap-2 mb-4">🎨 1. Choose Theme</h2>
+    <div class="flex flex-wrap gap-5 justify-center md:justify-start" id="themePicker">
+      <div data-theme="rose" class="theme-preview rounded-xl p-3 bg-white shadow w-36 text-center active"><div class="h-12 rounded-lg bg-gradient-to-r from-[#d37c5e] to-[#c98e4e]"></div><p class="text-sm mt-2 font-medium">Warm Rose</p><p class="text-xs text-slate-400">Soft peach + gold</p></div>
+      <div data-theme="lavender" class="theme-preview rounded-xl p-3 bg-white shadow w-36 text-center"><div class="h-12 rounded-lg bg-gradient-to-r from-[#9b7bb5] to-[#cfb3e6]"></div><p class="text-sm mt-2 font-medium">Lavender Grace</p><p class="text-xs text-slate-400">Purple serenity</p></div>
+      <div data-theme="mint" class="theme-preview rounded-xl p-3 bg-white shadow w-36 text-center"><div class="h-12 rounded-lg bg-gradient-to-r from-[#5f9e8c] to-[#b7d9c6]"></div><p class="text-sm mt-2 font-medium">Mint Whisper</p><p class="text-xs text-slate-400">Fresh & calm</p></div>
+      <div data-theme="midnight" class="theme-preview rounded-xl p-3 bg-white shadow w-36 text-center"><div class="h-12 rounded-lg bg-gradient-to-r from-[#d4a5ff] to-[#f6d58d]"></div><p class="text-sm mt-2 font-medium">Midnight Bloom</p><p class="text-xs text-slate-400">Dark floral luxury</p></div>
+      <div data-theme="sakura" class="theme-preview rounded-xl p-3 bg-white shadow w-36 text-center"><div class="h-12 rounded-lg bg-gradient-to-r from-[#e8a0bf] to-[#f3d7c3]"></div><p class="text-sm mt-2 font-medium">Sakura Pearl</p><p class="text-xs text-slate-400">Soft blush elegance</p></div>
+      <div data-theme="ivory" class="theme-preview rounded-xl p-3 bg-white shadow w-36 text-center"><div class="h-12 rounded-lg bg-gradient-to-r from-[#b08d57] to-[#e7c98f]"></div><p class="text-sm mt-2 font-medium">Royal Ivory</p><p class="text-xs text-slate-400">Timeless elegance</p></div>
+    </div>
+  </div>
+
+  <!-- Floating Effect Picker -->
+  <div class="bg-white/70 rounded-2xl p-6 shadow-sm border border-amber-100 mb-8">
+    <h2 class="text-xl font-medium flex items-center gap-2 mb-4">✨ 2. Floating Effects</h2>
+    <div class="flex flex-wrap gap-3" id="effectPicker">
+      <button data-effect="flowers" class="effect-btn px-4 py-2 rounded-full bg-amber-100 text-amber-800 border border-amber-200 active-effect">🌸 Flowers</button>
+      <button data-effect="hearts" class="effect-btn px-4 py-2 rounded-full bg-white border border-amber-200">❤️ Hearts</button>
+      <button data-effect="stars" class="effect-btn px-4 py-2 rounded-full bg-white border border-amber-200">✨ Stars</button>
+      <button data-effect="none" class="effect-btn px-4 py-2 rounded-full bg-white border border-amber-200">🚫 None</button>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-5 gap-8">
+    <!-- LEFT: Editors -->
+    <div class="lg:col-span-3 space-y-8">
+      <div class="bg-white/80 rounded-2xl p-6 border border-amber-100 shadow-sm">
+        <h2 class="text-xl font-medium flex items-center gap-2 mb-3">✍️ 3. Heartfelt Letter</h2>
+        <textarea id="letterText" rows="8" class="w-full border border-amber-200 rounded-xl p-4 bg-amber-50/40 focus:ring-2 focus:ring-amber-200 outline-none text-slate-700 font-light leading-relaxed"></textarea>
+        <div class="mt-3 grid sm:grid-cols-2 gap-3">
+          <div><label class="text-xs uppercase tracking-wide text-slate-500">Signature name</label><input type="text" id="signatureName" value="Your Child" class="w-full mt-1 border border-amber-200 rounded-lg p-2 bg-white"></div>
+          <div><label class="text-xs uppercase tracking-wide text-slate-500">Hero Quote</label><input type="text" id="heroQuote" value="To the woman who gave me roots to grow and wings to fly." class="w-full mt-1 border border-amber-200 rounded-lg p-2 bg-white"></div>
+        </div>
+      </div>
+
+      <div class="bg-white/80 rounded-2xl p-6 border border-amber-100 shadow-sm">
+        <div class="flex justify-between items-center mb-3 flex-wrap">
+          <h2 class="text-xl font-medium flex items-center gap-2">📸 4. Memory Gallery</h2>
+          <div class="flex gap-2">
+            <span id="memorySizeLabel" class="size-badge size-ok mr-2">~0 KB</span>
+            <button id="addMemoryBtn" class="text-sm bg-amber-100 hover:bg-amber-200 px-4 py-1.5 rounded-full">+ Add Memory</button>
+            <button id="removeMemoryBtn" class="text-sm bg-red-100 hover:bg-red-200 px-4 py-1.5 rounded-full ml-2">- Remove All</button>
+          </div>
+        </div>
+        <div id="memoriesList" class="space-y-4 max-h-[460px] overflow-y-auto pr-1"></div>
+        <p class="text-xs text-slate-400 mt-3">📷 Click "Upload Image" to add your own photo (Base64). Leave empty to hide section.</p>
+      </div>
+
+      <div class="bg-white/80 rounded-2xl p-6 border border-amber-100 shadow-sm">
+        <div class="flex justify-between items-center mb-3 flex-wrap">
+          <h2 class="text-xl font-medium flex items-center gap-2">🎟️ 5. Gift Coupons</h2>
+          <div><button id="addCouponBtn" class="text-sm bg-amber-100 hover:bg-amber-200 px-4 py-1.5 rounded-full">+ Add Coupon</button>
+          <button id="removeCouponBtn" class="text-sm bg-red-100 hover:bg-red-200 px-4 py-1.5 rounded-full ml-2">- Remove All</button></div>
+        </div>
+        <div id="couponsList" class="space-y-3 max-h-80 overflow-y-auto pr-1"></div>
+        <p class="text-xs text-slate-400 mt-3">Leave empty to hide this section.</p>
+      </div>
+
+      <div class="bg-white/80 rounded-2xl p-6 border border-amber-100 shadow-sm">
+        <div class="flex justify-between items-center mb-3 flex-wrap">
+          <h2 class="text-xl font-medium flex items-center gap-2">💬 6. Wall of Love</h2>
+          <button id="addWishBtn" class="text-sm bg-amber-100 hover:bg-amber-200 px-4 py-1.5 rounded-full">+ Add Message</button>
+        </div>
+        <div id="wishesList" class="space-y-3 max-h-80 overflow-y-auto pr-1"></div>
+        <p class="text-xs text-slate-400 mt-3">Leave empty to hide this section.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT: Generation Panel -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="bg-gradient-to-br from-amber-50 to-pink-50 rounded-2xl p-6 shadow-sm sticky top-6 border border-amber-100">
+        <h2 class="text-xl font-semibold text-slate-800 mb-2">✨ Generate Final Card</h2>
+        <p class="text-sm text-slate-500 mb-5">All content + uploaded photos (Base64) embedded. Opens in a new browser tab — no download needed.</p>
+        <div class="mb-4 p-3 rounded-xl bg-white/80 border border-amber-100 text-sm flex justify-between"><span class="text-slate-500">Estimated file size</span><span id="totalSizeLabel" class="size-badge size-ok font-medium">~0 KB</span></div>
+        
+        <button id="openCardInBrowserBtn" class="w-full py-3 rounded-xl text-white font-medium tracking-wide shadow-md transition-all hover:shadow-lg mb-3" style="background: linear-gradient(135deg, #2b7a4b, #56ab8f)">🌐 Open Card in Browser (new tab)</button>
+        <button id="previewBtn" class="w-full py-3 rounded-xl text-white font-medium tracking-wide shadow-md transition-all hover:shadow-lg mb-3" style="background: linear-gradient(135deg, #9b7bb5, #d37c5e)">👁️ Preview Card (modal)</button>
+        <button id="generateBtn" class="w-full py-3 rounded-xl text-white font-medium tracking-wide shadow-md transition-all hover:shadow-lg" style="background: linear-gradient(135deg, #d37c5e, #c98e4e)">💾 Download Card (file)</button>
+        
+        <div class="info-note">
+          <strong>📱 On iPhone / Android:</strong> After opening the card in a new tab, you can bookmark it or tap Share → "Add to Home Screen" for easy access.
+        </div>
+        
+        <div class="mt-5 text-xs text-slate-400 border-t border-amber-200 pt-4"><p>💡 "Open Card in Browser" works instantly on all devices.</p><p>🎵 Background music uses CDN (requires internet).</p></div>
+        <button id="resetDefaultsBtn" class="mt-4 text-sm text-amber-700 underline hover:text-amber-900 w-full text-center">↻ Reset to default content</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div id="previewModal">
+  <div class="preview-container">
+    <div class="preview-header">
+      <span>🌸 Card Preview</span>
+      <div class="preview-buttons">
+        <button id="previewDownloadBtn">💾 Download</button>
+        <button id="closePreviewBtn">✕ Close</button>
+      </div>
+    </div>
+    <iframe id="previewFrame" title="Card Preview"></iframe>
+  </div>
+</div>
+
+<script>
+  // ----------------------------- STATE & helpers ------------------------------------
+  let memories = [];
+  let coupons  = [];
+  let wishes   = [];
+  let activeTheme  = "rose";
+  let activeEffect = "flowers";
+
+  const themeMap = {
+    rose:     { accent:"#d37c5e", accentDark:"#b66144", gold:"#c98e4e", bg:"#fffbf7", bgSoft:"#fff6ed", border:"rgba(235,203,185,0.4)", textDark:"#3c2f2c", textMuted:"#7d655b" },
+    lavender: { accent:"#9b7bb5", accentDark:"#7d5b99", gold:"#c2a5d9", bg:"#faf7ff", bgSoft:"#f3effa", border:"rgba(160,130,190,0.3)", textDark:"#2e2040", textMuted:"#6b5b80" },
+    mint:     { accent:"#5f9e8c", accentDark:"#437a68", gold:"#a8cfc0", bg:"#f6fcf9", bgSoft:"#eef6f2", border:"rgba(130,170,150,0.3)", textDark:"#1e3630", textMuted:"#4a7060" },
+    midnight: { accent:"#d4a5ff", accentDark:"#9f6ad8", gold:"#f6d58d", bg:"#0f1020", bgSoft:"#1a1c33", border:"rgba(255,255,255,0.08)", textDark:"#f0eaff", textMuted:"#c4b5d8" },
+    sakura:   { accent:"#e8a0bf", accentDark:"#cf7da3", gold:"#f3d7c3", bg:"#fff8fb", bgSoft:"#fff1f6", border:"rgba(232,160,191,0.22)", textDark:"#3a1f2e", textMuted:"#8a5070" },
+    ivory:    { accent:"#b08d57", accentDark:"#8d6b3f", gold:"#e7c98f", bg:"#fffdf8", bgSoft:"#f8f3ea", border:"rgba(176,141,87,0.18)", textDark:"#2e2010", textMuted:"#7a6040" }
+  };
+
+  function escapeHtml(str) { if (!str) return ""; return String(str).replace(/[&<>]/g, m => m=='&'?'&amp;':(m=='<'?'&lt;':'&gt;')); }
+  function svgToDataURI(svg) { return "data:image/svg+xml," + encodeURIComponent(svg).replace(/\(/g,'%28').replace(/\)/g,'%29'); }
+  function placeholderSVG(label) {
+    return svgToDataURI(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect width="400" height="400" fill="#f7ede6"/><text x="200" y="185" text-anchor="middle" font-family="Georgia,serif" font-size="52" fill="#d37c5e">🌸</text><text x="200" y="230" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#b08060">${escapeHtml(label)}</text></svg>`);
+  }
+  async function fileToBase64(file) {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const maxW = 1200, scale = Math.min(1, maxW / img.width);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", 0.72));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  function calcTotalSize() { let b=0; memories.forEach(m=>b+=(m.src||"").length*0.75); return b; }
+  function formatSize(b) { if(b<1024) return b.toFixed(0)+" B"; if(b<1048576) return (b/1024).toFixed(0)+" KB"; return (b/1048576).toFixed(1)+" MB"; }
+  function updateSizeLabels() {
+    let bytes=calcTotalSize(), label=formatSize(bytes), cls=bytes>5*1048576?"size-danger":(bytes>2*1048576?"size-warn":"size-ok");
+    let memSpan=document.getElementById("memorySizeLabel"), totalSpan=document.getElementById("totalSizeLabel");
+    if(memSpan){memSpan.innerHTML="~"+label; memSpan.className="size-badge "+cls;}
+    if(totalSpan){totalSpan.innerHTML="~"+label; totalSpan.className="size-badge "+cls;}
+  }
+  function loadDefaults() {
+    memories = [
+      { src: placeholderSVG("Upload your photo"), caption: "Soft moments in the sun" },
+      { src: placeholderSVG("Upload your photo"), caption: "Endless pure joy together" },
+      { src: placeholderSVG("Upload your photo"), caption: "A bond like no other" }
+    ];
+    coupons = [
+      { text: "Breakfast in Bed ☕", desc: "A cozy morning with her favorite treats." },
+      { text: "Movie Night Choice 🎬", desc: "She picks the film & controls the remote." },
+      { text: "A Full Day of Rest 🛋️", desc: "No chores, no calls — just pure tranquility." },
+      { text: "Unlimited Hugs 🤍", desc: "Valid for absolutely any time she wants." }
+    ];
+    wishes = [
+      { author: "Your Loving Child", text: "You brighten my life in every imaginable way! Thank you for the endless cookies and care." },
+      { author: "Forever Grateful",  text: "Wishing you a calm, luxurious day. You've earned it, Mom." }
+    ];
+    document.getElementById("letterText").value = `Every beautiful memory I carry begins with you.\nYou taught me softness without weakness, strength without cruelty, and love without conditions.\n\nThank you for every sacrifice nobody saw.\nThank you for every silent prayer.\nThank you for making life feel safe, warm, and meaningful.\n\nNo matter how far I go, your love will always be my home.`;
+    document.getElementById("signatureName").value = "Your Child";
+    document.getElementById("heroQuote").value = "To the woman who gave me roots to grow and wings to fly.";
+  }
+
+  // Render editors (same as before, condensed for brevity but fully functional)
+  function renderMemoriesEditor() {
+    const cont = document.getElementById("memoriesList");
+    if (!cont) return;
+    cont.innerHTML = "";
+    memories.forEach((mem, idx) => {
+      const div = document.createElement("div");
+      div.className = "flex gap-3 items-start bg-amber-50/40 p-3 rounded-xl border border-amber-100";
+      div.innerHTML = `<div class="flex-shrink-0 flex flex-col items-center gap-1"><img src="${escapeHtml(mem.src)}" class="memory-img-preview" onerror="this.src='${placeholderSVG("preview")}'" /><button class="upload-image-btn text-xs bg-white border border-amber-300 rounded-full px-2 py-0.5 text-amber-700">📷 Upload</button></div><div class="flex-1"><input type="text" value="${escapeHtml(mem.caption)}" placeholder="Caption" class="w-full text-sm border border-amber-200 rounded-lg p-1.5 bg-white memory-caption" /></div><button class="delete-memory text-red-400 hover:text-red-600 text-xl leading-5 px-2 delete-item rounded-full">✕</button>`;
+      cont.appendChild(div);
+      const imgEl = div.querySelector("img");
+      const capInp = div.querySelector(".memory-caption");
+      const upBtn = div.querySelector(".upload-image-btn");
+      upBtn.addEventListener("click", async () => {
+        const inp = document.createElement("input");
+        inp.type = "file";
+        inp.accept = "image/*";
+        inp.onchange = async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          upBtn.textContent = "⏳...";
+          upBtn.disabled = true;
+          const b64 = await fileToBase64(file);
+          memories[idx].src = b64;
+          imgEl.src = b64;
+          upBtn.textContent = "📷 Upload";
+          upBtn.disabled = false;
+          updateSizeLabels();
+          saveToLocal();
+        };
+        inp.click();
+      });
+      capInp.addEventListener("input", () => { memories[idx].caption = capInp.value; saveToLocal(); });
+      div.querySelector(".delete-memory").addEventListener("click", () => { memories.splice(idx,1); renderMemoriesEditor(); updateSizeLabels(); saveToLocal(); });
+    });
+    updateSizeLabels();
+  }
+  function renderCouponsEditor() {
+    const cont = document.getElementById("couponsList");
+    if (!cont) return;
+    cont.innerHTML = "";
+    coupons.forEach((c, idx) => {
+      const div = document.createElement("div");
+      div.className = "flex gap-2 items-start bg-amber-50/40 p-3 rounded-xl border border-amber-100";
+      div.innerHTML = `<div class="flex-1"><input type="text" value="${escapeHtml(c.text)}" placeholder="Coupon title" class="w-full text-sm border border-amber-200 rounded p-1.5 bg-white coupon-title" /><input type="text" value="${escapeHtml(c.desc)}" placeholder="Description" class="w-full text-sm border border-amber-200 rounded p-1.5 mt-1 bg-white coupon-desc" /></div><button class="delete-coupon text-red-400 hover:text-red-600 text-xl leading-5 px-2 delete-item rounded-full">✕</button>`;
+      cont.appendChild(div);
+      div.querySelector(".coupon-title").addEventListener("input", e => { coupons[idx].text = e.target.value; saveToLocal(); });
+      div.querySelector(".coupon-desc").addEventListener("input", e => { coupons[idx].desc = e.target.value; saveToLocal(); });
+      div.querySelector(".delete-coupon").addEventListener("click", () => { coupons.splice(idx,1); renderCouponsEditor(); saveToLocal(); });
+    });
+  }
+  function renderWishesEditor() {
+    const cont = document.getElementById("wishesList");
+    if (!cont) return;
+    cont.innerHTML = "";
+    wishes.forEach((w, idx) => {
+      const div = document.createElement("div");
+      div.className = "flex gap-2 items-start bg-amber-50/40 p-3 rounded-xl border border-amber-100";
+      div.innerHTML = `<div class="flex-1"><input type="text" value="${escapeHtml(w.author)}" placeholder="Author name" class="w-full text-sm border border-amber-200 rounded p-1.5 bg-white wish-author" /><textarea rows="2" placeholder="Message" class="w-full text-sm border border-amber-200 rounded p-1.5 mt-1 bg-white wish-text">${escapeHtml(w.text)}</textarea></div><button class="delete-wish text-red-400 hover:text-red-600 text-xl leading-5 px-2 delete-item rounded-full">✕</button>`;
+      cont.appendChild(div);
+      div.querySelector(".wish-author").addEventListener("input", e => { wishes[idx].author = e.target.value; saveToLocal(); });
+      div.querySelector(".wish-text").addEventListener("input", e => { wishes[idx].text = e.target.value; saveToLocal(); });
+      div.querySelector(".delete-wish").addEventListener("click", () => { wishes.splice(idx,1); renderWishesEditor(); saveToLocal(); });
+    });
+  }
+  function saveToLocal() {
+    try {
+      localStorage.setItem("cardStudio_memories", JSON.stringify(memories));
+      localStorage.setItem("cardStudio_coupons", JSON.stringify(coupons));
+      localStorage.setItem("cardStudio_wishes", JSON.stringify(wishes));
+      localStorage.setItem("cardStudio_letter", document.getElementById("letterText").value);
+      localStorage.setItem("cardStudio_signature", document.getElementById("signatureName").value);
+      localStorage.setItem("cardStudio_heroQuote", document.getElementById("heroQuote").value);
+      localStorage.setItem("cardStudio_theme", activeTheme);
+      localStorage.setItem("cardStudio_effect", activeEffect);
+    } catch(e) {}
+  }
+  function loadFromLocal() {
+    const getJson = (key, fallback) => { try { let v=localStorage.getItem(key); return v?JSON.parse(v):fallback; } catch { return fallback; } };
+    const getStr = (key, fallback) => { try { let v=localStorage.getItem(key); return v!==null?v:fallback; } catch { return fallback; } };
+    let mem = getJson("cardStudio_memories", null);
+    if(mem && mem.length) memories = mem;
+    else memories = [{ src: placeholderSVG("Upload your photo"), caption: "Soft moments in the sun" },{ src: placeholderSVG("Upload your photo"), caption: "Endless pure joy together" },{ src: placeholderSVG("Upload your photo"), caption: "A bond like no other" }];
+    coupons = getJson("cardStudio_coupons", [{ text:"Breakfast in Bed ☕", desc:"A cozy morning with her favorite treats." },{ text:"Movie Night Choice 🎬", desc:"She picks the film & controls the remote." },{ text:"A Full Day of Rest 🛋️", desc:"No chores, no calls — just pure tranquility." },{ text:"Unlimited Hugs 🤍", desc:"Valid for absolutely any time she wants." }]);
+    wishes = getJson("cardStudio_wishes", [{ author:"Your Loving Child", text:"You brighten my life in every imaginable way! Thank you for the endless cookies and care." },{ author:"Forever Grateful", text:"Wishing you a calm, luxurious day. You've earned it, Mom." }]);
+    document.getElementById("letterText").value = getStr("cardStudio_letter", `Every beautiful memory I carry begins with you.\nYou taught me softness without weakness, strength without cruelty, and love without conditions.\n\nThank you for every sacrifice nobody saw.\nThank you for every silent prayer.\nThank you for making life feel safe, warm, and meaningful.\n\nNo matter how far I go, your love will always be my home.`);
+    document.getElementById("signatureName").value = getStr("cardStudio_signature", "Your Child");
+    document.getElementById("heroQuote").value = getStr("cardStudio_heroQuote", "To the woman who gave me roots to grow and wings to fly.");
+    let th = getStr("cardStudio_theme", "rose"); if(themeMap[th]) activeTheme = th;
+    let eff = getStr("cardStudio_effect", "flowers"); if(["flowers","hearts","stars","none"].includes(eff)) activeEffect = eff;
+  }
+  function updateEffectUI() { document.querySelectorAll(".effect-btn").forEach(btn=>btn.classList.toggle("active-effect", btn.dataset.effect===activeEffect)); }
+
+  // ---------- GENERATE FINAL CARD HTML (same as previous working version) ----------
+  function generateFinalHTML() {
+    const colors = themeMap[activeTheme];
+    const letterRaw = document.getElementById("letterText").value;
+    const sigName = document.getElementById("signatureName").value;
+    const heroQ = document.getElementById("heroQuote").value;
+    const memoriesJSON = JSON.stringify(memories);
+    const couponsJSON = JSON.stringify(coupons);
+    const wishesJSON = JSON.stringify(wishes);
+    const effect = activeEffect;
+
+    const hasMemories = memories.length > 0;
+    const hasCoupons = coupons.length > 0;
+    const hasWishes = wishes.length > 0;
+    let navItems = ['<a href="#letter" class="nav-a">Letter</a>'];
+    if (hasMemories) navItems.push('<a href="#gallery" class="nav-a">Memories</a>');
+    if (hasCoupons) navItems.push('<a href="#coupons" class="nav-a">Coupons</a>');
+    if (hasWishes) navItems.push('<a href="#wall" class="nav-a">Wall of Love</a>');
+    const navLinks = navItems.join("");
+
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes"><title>🌸 Happy Mother's Day — A Loving Tribute</title><script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"><\/script><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Dancing+Script:wght@500;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"><style>:root{--bg:${colors.bg};--bg-soft:${colors.bgSoft};--accent:${colors.accent};--accent-dark:${colors.accentDark};--gold:${colors.gold};--border:${colors.border};--text:${colors.textDark};--muted:${colors.textMuted}}body{font-family:'Outfit',sans-serif;background:radial-gradient(circle at top right,var(--bg),var(--bg-soft));color:var(--text)}h1,h2,h3{font-family:'Cormorant Garamond',serif}.sig{font-family:'Dancing Script',cursive}.glass{background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);border:1px solid var(--border)}.section-p{padding:90px 24px}.reveal{opacity:0;transform:translateY(28px);transition:all 0.8s cubic-bezier(0.2,0.9,0.3,1)}.reveal.visible{opacity:1;transform:translateY(0)}.card{border-radius:24px;background:rgba(255,255,255,0.85);border:1px solid var(--border);box-shadow:0 15px 35px rgba(110,60,45,0.07);transition:transform 0.4s ease}.card:hover{transform:translateY(-5px)}.memory{border-radius:20px;overflow:hidden;cursor:pointer;aspect-ratio:1}.memory img{width:100%;height:100%;object-fit:cover;transition:transform 0.8s ease}.memory:hover img{transform:scale(1.06)}.btn-main{background:linear-gradient(135deg,var(--accent),var(--gold));color:#fff;cursor:pointer;transition:all 0.3s;border:none}.btn-main:hover{background:linear-gradient(135deg,var(--accent-dark),var(--accent));transform:translateY(-2px)}.petals{position:fixed;inset:0;pointer-events:none;z-index:10;overflow:hidden}.petal{position:absolute;animation:floatDown linear infinite;opacity:0.65;user-select:none}@keyframes floatDown{from{transform:translateY(-12vh) rotate(0deg)}to{transform:translateY(108vh) rotate(360deg)}}.lightbox{position:fixed;inset:0;background:rgba(22,17,15,0.88);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:0.4s;z-index:100}.lightbox.open{opacity:1;pointer-events:auto}.lightbox img{max-width:90vw;max-height:82vh;border-radius:16px}.nav-a{color:var(--text);text-decoration:none;font-size:14px;opacity:0.75}.nav-a:hover{opacity:1;color:var(--accent)}.kicker{display:inline-block;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);font-size:12px;margin-bottom:12px}.sec-h{font-size:clamp(28px,5vw,48px);font-weight:300}</style></head><body><div class="petals" id="petals"></div><nav class="fixed top-0 left-0 right-0 z-50 glass"><div class="max-w-7xl mx-auto px-6 py-3.5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="text-3xl">🌸</span><span class="text-xl md:text-2xl font-semibold bg-gradient-to-r from-[var(--accent)] to-[var(--gold)] bg-clip-text text-transparent">With Love for Mom</span></div><div class="hidden md:flex gap-6 text-sm">${navLinks}</div></div></nav><section class="min-h-screen flex items-center justify-center px-6 pt-24 pb-12 text-center"><div class="max-w-5xl mx-auto reveal visible"><span class="uppercase tracking-[.4em] text-[var(--gold)] text-xs md:text-sm font-semibold inline-block mb-4 bg-amber-50 px-4 py-1.5 rounded-full">A Special Tribute</span><h1 class="text-6xl md:text-8xl lg:text-9xl font-extralight mb-6">Happy <span class="sig text-[var(--accent)]">Mother's Day</span></h1><p class="text-xl md:text-3xl text-[var(--muted)] italic mb-8">“${escapeHtml(heroQ)}”</p><button id="celebrateBtn" class="btn-main px-8 py-4 rounded-full">💝 Shower with Love</button></div></section><section id="letter" class="section-p"><div class="max-w-3xl mx-auto reveal"><div class="text-center mb-10"><span class="uppercase tracking-[.4em] text-[var(--gold)]">From the Heart</span><h2 class="text-4xl md:text-5xl font-light mt-3">Dearest Mom,</h2><div class="w-16 h-0.5 bg-[var(--accent)] mx-auto rounded-full"></div></div><div class="card p-8 md:p-14 bg-white/70 relative"><div class="absolute top-0 right-0 p-4 text-4xl text-pink-100/50">❝</div><div id="typewriter" class="text-lg md:text-xl leading-relaxed text-slate-700 whitespace-pre-line italic text-center"></div><div id="signOff" class="mt-8 text-right opacity-0"><span class="sig text-3xl md:text-4xl text-[var(--accent)] font-semibold block">Forever with love,</span><span class="text-slate-500 uppercase text-sm">${escapeHtml(sigName)}</span></div></div></div></section>${hasMemories ? `<section id="gallery" class="section-p bg-[var(--bg-soft)]"><div class="max-w-6xl mx-auto reveal"><div class="text-center mb-14"><span class="kicker">Our Journey</span><h2 class="sec-h">Moments We Cherish</h2></div><div class="grid grid-cols-2 md:grid-cols-3 gap-6" id="memoryGrid"></div></div></section>` : ""}${hasCoupons ? `<section id="coupons" class="section-p"><div class="max-w-5xl mx-auto reveal"><div class="text-center mb-14"><span class="kicker">A Loving Token</span><h2 class="sec-h">Gift Coupons for Mom</h2></div><div class="grid md:grid-cols-2 gap-6" id="couponGrid"></div></div></section>` : ""}${hasWishes ? `<section id="wall" class="section-p bg-white/40"><div class="max-w-5xl mx-auto reveal"><div class="text-center mb-14"><span class="kicker">Gratitude Board</span><h2 class="sec-h">Wall of Love & Gratitude</h2></div><div class="grid sm:grid-cols-2 gap-5 max-h-[520px] overflow-y-auto pr-1" id="corkboard"></div></div></section>` : ""}<section class="section-p text-center bg-[#3c2f2c] text-white"><div class="max-w-3xl mx-auto reveal"><span class="text-4xl block mb-6">🌸</span><h2 class="text-5xl md:text-6xl font-light mb-6">Thank You For Everything</h2><p class="text-xl text-white/80">Your kindness shaped my world. Your warmth became my home.<br>Every beautiful part of me carries a piece of your infinite grace.</p><div class="mt-10 text-3xl sig text-[#f9d7a9]">“With all my love, always and forever.”</div></div></section><div class="lightbox" id="lightbox"><div class="absolute top-6 right-6 text-white text-3xl cursor-pointer" id="closeLightbox">✕</div><img id="lightboxImg" src=""></div><button id="musicBtn" class="fixed bottom-6 right-6 btn-main px-5 py-3 rounded-full shadow-xl z-40 flex items-center gap-2"><span id="musicIcon">🎵</span><span id="musicText">Music</span></button><audio id="bgMusic" loop><source src="https://cdn.jsdelivr.net/gh/itissitech/generated-card/musicbg.mp3" type="audio/mpeg"></audio><script>(function(){const EFFECT=${JSON.stringify(effect)};const MEMORIES=${memoriesJSON};const COUPONS=${couponsJSON};const WISHES=${wishesJSON};const LETTER=${JSON.stringify(letterRaw)};function spawnEffects(){let w=document.getElementById("petals");if(!w||EFFECT==="none")return;let sets={flowers:["🌸","🌼","🌷","🌺"],hearts:["❤️","💖","💗","💘"],stars:["✨","⭐","🌟"]};let items=sets[EFFECT]||[];items.forEach(emoji=>{for(let i=0;i<22;i++){let e=document.createElement("div");e.className="petal";e.textContent=emoji;e.style.left=Math.random()*100+"vw";e.style.fontSize=(Math.random()*20+14)+"px";e.style.animationDuration=(Math.random()*12+6)+"s";e.style.animationDelay=(Math.random()*5)+"s";w.appendChild(e);}});}function renderGallery(){let g=document.getElementById("memoryGrid");if(!g)return;MEMORIES.forEach(m=>{let d=document.createElement("div");d.className="memory card relative group";d.innerHTML=\`<img src="\${m.src}" alt="memory" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 to-transparent flex items-end p-5 opacity-0 group-hover:opacity-100 transition"><p class="text-white text-sm">\${m.caption||""}</p></div>\`;d.onclick=()=>{lightbox.classList.add("open");lightboxImg.src=m.src;};g.appendChild(d);});}function renderCoupons(){let g=document.getElementById("couponGrid");if(!g)return;COUPONS.forEach(c=>{let d=document.createElement("div");d.className="card p-6 bg-white/75";d.innerHTML=\`<h3 class="text-2xl font-light">\${escapeHtml(c.text)}</h3><p class="text-sm text-[var(--muted)] mt-1">\${escapeHtml(c.desc)}</p><div class="mt-4 flex justify-end"><span class="text-xs text-[var(--gold)] bg-amber-50 px-3 py-1 rounded-full">💝 always yours</span></div>\`;g.appendChild(d);});}function renderWall(){let b=document.getElementById("corkboard");if(!b)return;WISHES.forEach(w=>{let d=document.createElement("div");d.className="card p-5 bg-amber-50/50 border border-amber-200/50";d.innerHTML=\`<p class="text-slate-700 text-sm italic">“\${escapeHtml(w.text)}”</p><div class="text-right mt-2 text-xs font-semibold text-[var(--gold)]">— \${escapeHtml(w.author)}</div>\`;b.appendChild(d);});}function typewriter(){let el=document.getElementById("typewriter");let sig=document.getElementById("signOff");let i=0;let t=setInterval(()=>{if(i<LETTER.length){el.innerHTML+=LETTER[i];i++;}else{clearInterval(t);if(sig)sig.style.opacity="1";}},28);}function openLightbox(src){lightboxImg.src=src;lightbox.classList.add("open");}const lightbox=document.getElementById("lightbox"),lightboxImg=document.getElementById("lightboxImg");document.getElementById("closeLightbox").onclick=()=>lightbox.classList.remove("open");lightbox.onclick=e=>e.target===lightbox&&lightbox.classList.remove("open");function celebrate(){let clr=["#d37c5e","#c98e4e","#fbcfe8","#fb923c","#fde68a"];for(let i=0;i<80;i++){let c=document.createElement("div");c.style.cssText="position:fixed;left:"+Math.random()*100+"vw;top:-16px;width:"+(Math.random()*8+5)+"px;height:"+(Math.random()*8+5)+"px;background:"+clr[Math.floor(Math.random()*clr.length)]+";pointer-events:none;border-radius:50%;z-index:999";document.body.appendChild(c);c.animate([{transform:"translateY(0) rotate(0deg)",opacity:1},{transform:"translateY("+(window.innerHeight+80)+"px) rotate(720deg)",opacity:0}],{duration:1800+Math.random()*800,easing:"ease-in"});setTimeout(()=>c.remove(),2700);}}document.getElementById("celebrateBtn").onclick=celebrate;let music=document.getElementById("bgMusic"),mBtn=document.getElementById("musicBtn"),mIcon=document.getElementById("musicIcon"),mText=document.getElementById("musicText");mBtn.onclick=()=>{if(music.paused){music.play().catch(()=>{});mIcon.textContent="⏸";mText.textContent="Pause";}else{music.pause();mIcon.textContent="🎵";mText.textContent="Music";}};let obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add("visible");});},{threshold:0.08});document.querySelectorAll(".reveal").forEach(el=>obs.observe(el));function escapeHtml(s){return String(s||"").replace(/[&<>]/g,function(m){return m==='&'?'&amp;':(m==='<'?'&lt;':'&gt;');});}spawnEffects();renderGallery();renderCoupons();renderWall();typewriter();})();<\/script></body></html>`;
+  }
+
+  // ----- Open generated card in browser -----
+  let cardBlobUrl = null;
+  function openCardInBrowser() {
+    const html = generateFinalHTML();
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  // ----- Preview modal -----
+  let previewBlobUrl = null;
+  function openPreview() {
+    const modal = document.getElementById("previewModal");
+    const frame = document.getElementById("previewFrame");
+    if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
+    const blob = new Blob([generateFinalHTML()], { type: "text/html" });
+    previewBlobUrl = URL.createObjectURL(blob);
+    frame.src = previewBlobUrl;
+    modal.classList.add("open");
+  }
+  function downloadHTML() {
+    const html = generateFinalHTML();
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "mothers_day_tribute.html";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function resetToDefaults() {
+    activeTheme = "rose"; activeEffect = "flowers";
+    loadDefaults(); saveToLocal();
+    renderMemoriesEditor(); renderCouponsEditor(); renderWishesEditor();
+    updateEffectUI();
+    document.querySelectorAll(".theme-preview").forEach(el=>el.classList.remove("active"));
+    document.querySelector(".theme-preview[data-theme='rose']").classList.add("active");
+    updateSizeLabels();
+  }
+
+  // ----- Event binding -----
+  document.getElementById("openCardInBrowserBtn").addEventListener("click", openCardInBrowser);
+  document.getElementById("generateBtn").addEventListener("click", downloadHTML);
+  document.getElementById("previewBtn").addEventListener("click", openPreview);
+  document.getElementById("previewDownloadBtn").addEventListener("click", downloadHTML);
+  document.getElementById("closePreviewBtn").addEventListener("click", () => {
+    document.getElementById("previewModal").classList.remove("open");
+    if(previewBlobUrl){ URL.revokeObjectURL(previewBlobUrl); previewBlobUrl=null; document.getElementById("previewFrame").src="about:blank"; }
+  });
+  document.getElementById("resetDefaultsBtn").addEventListener("click", resetToDefaults);
+  document.getElementById("addMemoryBtn").addEventListener("click", () => { memories.push({ src: placeholderSVG("Your photo"), caption: "A precious memory" }); renderMemoriesEditor(); saveToLocal(); });
+  document.getElementById("removeMemoryBtn").addEventListener("click", () => { memories = []; renderMemoriesEditor(); updateSizeLabels(); saveToLocal(); });
+  document.getElementById("addCouponBtn").addEventListener("click", () => { coupons.push({ text:"Custom Gift ✨", desc:"Redeem for a lovely surprise" }); renderCouponsEditor(); saveToLocal(); });
+  document.getElementById("removeCouponBtn").addEventListener("click", () => { coupons = []; renderCouponsEditor(); saveToLocal(); });
+  document.getElementById("addWishBtn").addEventListener("click", () => { wishes.push({ author:"Family", text:"You are the heartbeat of our home." }); renderWishesEditor(); saveToLocal(); });
+  ["letterText","signatureName","heroQuote"].forEach(id => document.getElementById(id).addEventListener("input", saveToLocal));
+  document.querySelectorAll(".theme-preview").forEach(el => el.addEventListener("click", () => {
+    document.querySelectorAll(".theme-preview").forEach(e=>e.classList.remove("active"));
+    el.classList.add("active");
+    activeTheme = el.dataset.theme;
+    saveToLocal();
+  }));
+  document.querySelectorAll(".effect-btn").forEach(btn => btn.addEventListener("click", () => {
+    activeEffect = btn.dataset.effect;
+    updateEffectUI();
+    saveToLocal();
+  }));
+
+  // Bootstrap
+  loadFromLocal();
+  renderMemoriesEditor();
+  renderCouponsEditor();
+  renderWishesEditor();
+  updateEffectUI();
+  const activeThemeEl = document.querySelector(`.theme-preview[data-theme="${activeTheme}"]`);
+  if(activeThemeEl) activeThemeEl.classList.add("active");
+  updateSizeLabels();
+</script>
+</body>
+</html>
